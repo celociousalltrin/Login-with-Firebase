@@ -1,23 +1,35 @@
-import logo from './logo.svg';
 import './App.css';
+import LoginPage from './Component/Login';
+import Routing from './Pages/Routing';
+import {useSelector,useDispatch} from "react-redux";
+import {login,logout} from "../src/feature/UserSlice";
+import {onAuthStateChanged} from "firebase/auth";
+import {useEffect} from "react";
+import {auth} from "./firebase";
 
 function App() {
+  const use = useSelector((state)=>state.loginInfo.value);
+
+  const dispatch = useDispatch()
+useEffect(()=>{
+ const x = onAuthStateChanged(auth,(userAuth)=>{
+  if(userAuth){
+    dispatch(login({
+      uid:userAuth.uid,
+      email:userAuth.email
+    }))
+  }else {
+    dispatch(logout())
+  }
+ })
+ return x;
+},[])
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {
+        !use ? <LoginPage /> : <Routing />
+      }      
     </div>
   );
 }
